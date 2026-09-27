@@ -195,9 +195,13 @@ export interface FullMatch {
 
 export type DocKind = "cv" | "cover_letter" | "portfolio" | "outreach" | "linkedin" | "interview_prep";
 
+/** Reserved evidence id for a sentence that restates the job advert rather than the candidate. */
+export const JOB_EVIDENCE: EvidenceId = "JOB";
+
 export interface DraftSentence {
   text: string;
-  evidenceIds: EvidenceId[]; // empty only for structural lines (name, contact, headings)
+  /** CV evidence ids backing the sentence, or JOB_EVIDENCE. Empty only for structural lines (name, contact, sign off). */
+  evidenceIds: EvidenceId[];
 }
 
 export interface DraftSection {
