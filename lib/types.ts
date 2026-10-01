@@ -19,6 +19,9 @@ export interface Evidence {
   text: string;
   employer?: string;
   role?: string;
+  /** Where the line came from. Absent means the uploaded CV. */
+  source?: "cv" | "github";
+  link?: string;
 }
 
 export interface ExperienceEntry {
@@ -328,4 +331,30 @@ export type UsageKind = "kit" | "scan";
 export interface SessionUser {
   id: string;
   email: string;
+}
+
+export interface PortfolioItem {
+  title: string;
+  lines: DraftSentence[];
+  skills: string[];
+  link?: string;
+  source: "cv" | "github";
+}
+
+/** A role specific portfolio page. Private until the owner publishes it. */
+export interface PortfolioPage {
+  id: string;
+  slug: string;
+  roleFamily: string;
+  roleLabel: string;
+  name: string;
+  headline: string;
+  about: DraftSentence[];
+  items: PortfolioItem[];
+  skills: string[];
+  links: string[];
+  location?: string;
+  email?: string; // included only when the owner opts in
+  published: boolean;
+  updatedAt: string;
 }

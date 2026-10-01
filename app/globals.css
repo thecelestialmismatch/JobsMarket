@@ -1,26 +1,240 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+  JobsMarket visual language: a CV as a recruiter marks it up.
+  Highlighter colours carry meaning everywhere they appear:
+    match   = evidence found for a requirement
+    gap     = requirement with no evidence
+    unknown = not stated, or needs a human check
+  Locked content is redacted with a solid bar, never blurred, because it is not in the page at all.
+*/
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  --paper: #f3f4f7;
+  --sheet: #ffffff;
+  --ink: #16181d;
+  --ink-2: #555b67;
+  --ink-3: #8a909c;
+  --rule: #d8dbe2;
+  --pen: #2b3bb5;
+  --pen-ink: #ffffff;
+  --hl-match: #c6f3ad;
+  --hl-gap: #ffc3d3;
+  --hl-unknown: #fff08c;
+  --redact: #16181d;
+  --danger: #b4232f;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    --paper: #0f1115;
+    --sheet: #171a20;
+    --ink: #e8e9ed;
+    --ink-2: #a3a8b3;
+    --ink-3: #6f7581;
+    --rule: #2b2f38;
+    --pen: #8c98ff;
+    --pen-ink: #0f1115;
+    --hl-match: #2f5a22;
+    --hl-gap: #6b2437;
+    --hl-unknown: #5e5419;
+    --redact: #e8e9ed;
+    --danger: #ff7a85;
   }
 }
 
+:root[data-theme="dark"] {
+  --paper: #0f1115;
+  --sheet: #171a20;
+  --ink: #e8e9ed;
+  --ink-2: #a3a8b3;
+  --ink-3: #6f7581;
+  --rule: #2b2f38;
+  --pen: #8c98ff;
+  --pen-ink: #0f1115;
+  --hl-match: #2f5a22;
+  --hl-gap: #6b2437;
+  --hl-unknown: #5e5419;
+  --redact: #e8e9ed;
+  --danger: #ff7a85;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-sheet: var(--sheet);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-rule: var(--rule);
+  --color-pen: var(--pen);
+  --color-pen-ink: var(--pen-ink);
+  --color-match: var(--hl-match);
+  --color-gap: var(--hl-gap);
+  --color-unknown: var(--hl-unknown);
+  --color-redact: var(--redact);
+  --color-danger: var(--danger);
+  --font-display: var(--font-anybody);
+  --font-sans: var(--font-atkinson);
+  --font-mono: var(--font-martian);
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-atkinson), system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  text-rendering: optimizeLegibility;
+}
+
+:focus-visible {
+  outline: 2px solid var(--pen);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--hl-unknown);
+  color: var(--ink);
+}
+
+/* Display type: Anybody, expanded and heavy, used sparingly for headings. */
+.display {
+  font-family: var(--font-anybody), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 0.98;
+}
+
+.display-narrow {
+  font-family: var(--font-anybody), system-ui, sans-serif;
+  font-variation-settings: "wdth" 75;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.label {
+  font-family: var(--font-martian), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+/* Highlighter stroke. Slightly uneven edges, like a real marker pass. */
+.hl {
+  --hl: var(--hl-unknown);
+  background-image: linear-gradient(
+    100deg,
+    transparent 0.2em,
+    var(--hl) 0.35em,
+    var(--hl) calc(100% - 0.4em),
+    transparent calc(100% - 0.2em)
+  );
+  background-size: 100% 78%;
+  background-position: 0 70%;
+  background-repeat: no-repeat;
+  padding: 0 0.3em;
+  margin: 0 -0.3em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.hl-match { --hl: var(--hl-match); }
+.hl-gap { --hl: var(--hl-gap); }
+.hl-unknown { --hl: var(--hl-unknown); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hl-sweep {
+    background-size: 0% 78%;
+    animation: sweep 0.55s cubic-bezier(0.3, 0.7, 0.2, 1) forwards;
+    animation-delay: var(--delay, 0s);
+  }
+  @keyframes sweep {
+    to { background-size: 100% 78%; }
+  }
+}
+
+/* Redaction bar for content an anonymous visitor may not see. The real text is never sent. */
+.redact {
+  display: inline-block;
+  background: var(--redact);
+  border-radius: 1px;
+  height: 0.95em;
+  vertical-align: -0.1em;
+}
+
+/* Evidence tag: every generated sentence cites the CV line behind it. */
+.etag {
+  font-family: var(--font-martian), ui-monospace, monospace;
+  font-size: 0.62em;
+  font-weight: 500;
+  vertical-align: 0.45em;
+  line-height: 1;
+  padding: 0.12em 0.32em;
+  margin-left: 0.2em;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  color: var(--ink-2);
+  background: var(--sheet);
+  white-space: nowrap;
+}
+
+.sheet {
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 1.1rem;
+  border-radius: 4px;
+  font-weight: 700;
+  line-height: 1;
+  border: 1px solid transparent;
+  transition: transform 0.12s ease, background-color 0.12s ease;
+  cursor: pointer;
+}
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-pen { background: var(--pen); color: var(--pen-ink); }
+.btn-pen:hover { filter: brightness(1.08); }
+.btn-line { background: var(--sheet); color: var(--ink); border-color: var(--rule); }
+.btn-line:hover { border-color: var(--ink-3); }
+.btn-quiet { background: transparent; color: var(--pen); padding: 0 0.25rem; min-height: 2rem; }
+.btn-quiet:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.field {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--sheet);
+  color: var(--ink);
+}
+.field:focus-visible { outline: 2px solid var(--pen); outline-offset: 0; }
+
+.score {
+  font-family: var(--font-martian), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+a.link {
+  color: var(--pen);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
