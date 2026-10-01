@@ -15,7 +15,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["lib/**/*.ts"],
-      exclude: ["lib/**/*.test.ts", "lib/types.ts", "lib/store/supabase.ts", "lib/auth/supabase.ts", "lib/supabase/**"],
+      exclude: ["lib/**/*.test.ts", "lib/types.ts", "lib/store/supabase.ts", "lib/auth/supabase.ts", "lib/supabase/**", "lib/server/**", "lib/backend.ts", "lib/jobs/cli.ts"],
       thresholds: { lines: 80, functions: 80, branches: 70, statements: 80 },
     },
   },

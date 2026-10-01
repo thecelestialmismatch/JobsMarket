@@ -1,5 +1,8 @@
-// Skills taxonomy and extractor. CONTRACT STUB: exports and signatures are frozen,
-// the data tables are expanded by the skills module owner.
+// Skills taxonomy and extractor. Data lives in data.ts, families.ts and learn.ts.
+
+import { SKILL_DEFS } from "./data";
+import { FAMILY_DEFS } from "./families";
+import { LEARN } from "./learn";
 
 export type SkillCategory =
   | "language"
@@ -20,6 +23,9 @@ export interface SkillDef {
   name: string; // canonical display name
   aliases: string[]; // lower case alternates matched on word boundaries
   category: SkillCategory;
+  implies?: string[]; // parent skills credited whenever this one is found
+  caseSensitive?: boolean; // the canonical name only matches with its own capitalisation
+  aliasOnly?: boolean; // the canonical name is too ambiguous to match by itself
 }
 
 export interface RoleFamily {
@@ -31,61 +37,81 @@ export interface RoleFamily {
   portfolioBenefit: boolean; // true when a portfolio page helps (software, data, design, marketing)
 }
 
-export const SKILLS: SkillDef[] = [
-  { name: "SQL", aliases: ["sql", "t-sql", "tsql", "pl/sql"], category: "data" },
-  { name: "Python", aliases: ["python"], category: "language" },
-  { name: "Power BI", aliases: ["power bi", "powerbi"], category: "analytics" },
-  { name: "Excel", aliases: ["excel", "advanced excel"], category: "office" },
-  { name: "AWS", aliases: ["aws", "amazon web services"], category: "cloud" },
-  { name: "TypeScript", aliases: ["typescript"], category: "language" },
-  { name: "React", aliases: ["react", "react.js", "reactjs"], category: "web" },
-  { name: "Terraform", aliases: ["terraform"], category: "devops" },
-  { name: "Salesforce", aliases: ["salesforce"], category: "crm" },
-  { name: "Tableau", aliases: ["tableau"], category: "analytics" },
+export const SKILLS: SkillDef[] = SKILL_DEFS;
+export const ROLE_FAMILIES: RoleFamily[] = FAMILY_DEFS;
+
+export const SOFT_SKILLS: string[] = [
+  "team player", "hard working", "hardworking", "communication skills", "excellent communication", "self motivated",
+  "self-motivated", "detail oriented", "detail-oriented", "attention to detail", "problem solving", "problem solver",
+  "time management", "work ethic", "fast learner", "quick learner", "adaptable", "flexible", "reliable", "punctual",
+  "positive attitude", "people skills", "interpersonal skills", "multitasking", "multi-tasking", "proactive",
+  "go-getter", "passionate", "dedicated", "motivated", "organised", "organized",
 ];
 
-export const ROLE_FAMILIES: RoleFamily[] = [
-  {
-    id: "data-analyst",
-    label: "Data Analyst",
-    titles: ["Data Analyst", "Reporting Analyst", "BI Analyst"],
-    coreSkills: ["SQL", "Power BI", "Excel", "Python", "Tableau"],
-    keywords: ["dashboards", "stakeholder reporting", "data validation"],
-    portfolioBenefit: true,
-  },
-  {
-    id: "software-engineer",
-    label: "Software Engineer",
-    titles: ["Software Engineer", "Full Stack Developer", "Frontend Engineer"],
-    coreSkills: ["TypeScript", "React", "Python", "AWS", "SQL"],
-    keywords: ["code review", "testing", "CI/CD"],
-    portfolioBenefit: true,
-  },
-];
+const WORD = "A-Za-z0-9+#";
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
+const bounded = (alts: string[], flags: string) =>
+  alts.length ? new RegExp(`(?:^|[^${WORD}])(?:${alts.map(escapeRe).join("|")})(?=$|[^${WORD}])`, flags) : null;
 
-export const SOFT_SKILLS: string[] = ["team player", "hard working", "communication", "self motivated", "detail oriented"];
-
-function escapeRe(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
+interface Matcher {
+  name: string;
+  name_re: RegExp | null;
+  alias_re: RegExp | null;
+  implies: string[];
 }
 
-const MATCHERS: { name: string; re: RegExp }[] = SKILLS.map((s) => ({
+const MATCHERS: Matcher[] = SKILLS.map((s) => ({
   name: s.name,
-  re: new RegExp(`(^|[^a-z0-9+#])(${[s.name.toLowerCase(), ...s.aliases].map(escapeRe).join("|")})(?=$|[^a-z0-9+#])`, "i"),
+  name_re: s.aliasOnly ? null : s.caseSensitive ? bounded([s.name], "") : bounded([s.name.toLowerCase()], "i"),
+  alias_re: bounded(s.aliases, "i"),
+  implies: s.implies ?? [],
 }));
+const ORDER = new Map(SKILLS.map((s, i) => [s.name, i]));
 
-/** Canonical skill names mentioned in the text, in taxonomy order, deduplicated. */
+/** Canonical skill names mentioned in the text plus their implied parents, in taxonomy order, deduplicated. */
 export function extractSkills(text: string): string[] {
-  return MATCHERS.filter((m) => m.re.test(text)).map((m) => m.name);
+  const found = new Set<string>();
+  for (const m of MATCHERS) {
+    if (m.name_re?.test(text) || m.alias_re?.test(text)) {
+      found.add(m.name);
+      m.implies.forEach((p) => found.add(p));
+    }
+  }
+  return [...found].sort((a, b) => (ORDER.get(a) ?? 0) - (ORDER.get(b) ?? 0));
 }
 
-/** Best matching role family id for a job or CV title, or null. */
+const SENIORITY = /\b(?:senior|snr|sr|junior|jnr|jr|lead|principal|staff|graduate|grad|intern|internship|trainee|entry level|associate|assistant|head of|chief|level \d|l\d|i{1,3})\b\.?/gi;
+
+function normaliseTitle(title: string): string {
+  return title
+    .split(/\s[-–—|]\s|\s(?:at|@)\s|[(\[]/i)[0]
+    .replace(SENIORITY, " ")
+    .replace(/[^a-z0-9+#&./ ]/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+/** Best matching role family id for a job or CV title, or null. Longest matching family title wins. */
 export function classifyTitle(title: string): string | null {
-  const t = title.toLowerCase();
+  const t = normaliseTitle(title);
+  if (!t) return null;
+  const tokens = new Set(t.split(" "));
+  let best: { id: string; score: number } | null = null;
   for (const f of ROLE_FAMILIES) {
-    if (f.titles.some((x) => t.includes(x.toLowerCase()))) return f.id;
+    for (const ft of f.titles) {
+      const n = normaliseTitle(ft);
+      let score = 0;
+      if (t === n) score = 1000 + n.length;
+      else if (` ${t} `.includes(` ${n} `)) score = 500 + n.length;
+      else {
+        const words = n.split(" ");
+        if (words.length > 1 && words.every((w) => tokens.has(w))) score = 200 + n.length;
+      }
+      if (score && (!best || score > best.score)) best = { id: f.id, score };
+    }
   }
-  return null;
+  return best?.id ?? null;
 }
 
 export function roleFamily(id: string): RoleFamily | undefined {
@@ -94,5 +120,5 @@ export function roleFamily(id: string): RoleFamily | undefined {
 
 /** One honest, specific next step for learning a skill. */
 export function learnHint(skill: string): string {
-  return `Build one small project that uses ${skill} and add a CV bullet describing what it did.`;
+  return LEARN[skill] ?? `Build one small project that uses ${skill} and add a CV bullet describing what it did.`;
 }

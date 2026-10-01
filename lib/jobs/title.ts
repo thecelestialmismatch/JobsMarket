@@ -10,8 +10,12 @@ function stripCompany(title: string, company: string): string {
   const name = company.trim();
   if (!name) return title;
   const c = escapeRe(name);
-  // Only remove the name when a separator attaches it, so "Deputy Manager" at Deputy survives.
-  return title
+  // A separator attaches the name, or the name leads and at least two words remain, so
+  // "Deputy Manager" at Deputy survives while "Acme Data Analyst" at Acme loses the prefix.
+  const lead = new RegExp(`^\\s*${c}\\s+`, "i");
+  const rest = title.replace(lead, "");
+  const base = rest !== title && rest.trim().split(/\s+/).length >= 2 ? rest : title;
+  return base
     .replace(new RegExp(`^\\s*${c}\\s*(?:[-|:\u2013\u2014]|\\s-\\s)\\s*`, "i"), "")
     .replace(new RegExp(`\\s*(?:[-|\u2013\u2014]|\\bat\\b|@)\\s*${c}\\s*$`, "i"), "")
     .replace(new RegExp(`\\s*[([]\\s*${c}\\s*[)\\]]`, "gi"), "");
