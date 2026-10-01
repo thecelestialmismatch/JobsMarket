@@ -1,0 +1,16 @@
+{
+  "name": "Sam Okafor",
+  "email": "sam.okafor@example.com",
+  "phone": "0400 000 789",
+  "location": "Sydney NSW 2000",
+  "experience": [
+    { "title": "Cloud Engineer", "employer": "Harbourline Logistics", "start": "2023-04", "end": "present", "bullets": 3 },
+    { "title": "DevOps Engineer", "employer": "Quillfeather Analytics", "start": "2021-01", "end": "2023-03", "bullets": 2 },
+    { "title": "Systems Administrator", "employer": "Northwind Telecom", "start": "2019-02", "end": "2020-12", "bullets": 2 }
+  ],
+  "educationCount": 1,
+  "projectCount": 2,
+  "certificationCount": 2,
+  "skills": ["AWS", "Terraform", "Python", "TypeScript", "React", "SQL"],
+  "yearsExperience": 8.8
+}
