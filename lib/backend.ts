@@ -1,5 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import type { SessionUser } from "@/lib/types";
 import type { Auth, CookieJar } from "@/lib/auth/types";
 import type { AdminStore, Store } from "@/lib/store/types";
@@ -62,6 +63,7 @@ export interface Backend {
 }
 
 export async function getBackend(): Promise<Backend> {
+  await connection(); // per request data, never prerendered
   const mode = backendMode();
   if (mode === "supabase") {
     const db = await createSupabaseServer();
