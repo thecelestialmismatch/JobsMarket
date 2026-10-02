@@ -132,7 +132,7 @@ export async function ingestAll(boards: readonly Board[], deps: IngestDeps): Pro
 }
 
 // ATS sources carry the full advert and the employer's own apply link, so they beat aggregators.
-const SOURCE_RANK: Record<JobSource, number> = { greenhouse: 0, lever: 0, ashby: 0, manual: 0, remotive: 1, adzuna: 2 };
+const SOURCE_RANK: Record<JobSource, number> = { greenhouse: 0, lever: 0, ashby: 0, manual: 0, remotive: 1, adzuna: 2, linkedin: 2 };
 
 const COMPANY_SUFFIX = /\b(?:pty|ltd|limited|inc|incorporated|llc|plc|gmbh|corp|corporation|co)\b\.?/g;
 

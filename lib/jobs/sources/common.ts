@@ -3,7 +3,7 @@ import type { JobPosting } from "@/lib/types";
 
 export type FetchDeps = { fetch: typeof fetch; timeoutMs?: number; userAgent?: string };
 
-export type RawSource = "greenhouse" | "lever" | "ashby" | "remotive" | "adzuna";
+export type RawSource = "greenhouse" | "lever" | "ashby" | "remotive" | "adzuna" | "linkedin";
 
 export interface RawSalary {
   min?: number;

@@ -65,7 +65,7 @@ export interface ParsedCV {
   warnings: string[];
 }
 
-export type JobSource = "greenhouse" | "lever" | "ashby" | "remotive" | "adzuna" | "manual";
+export type JobSource = "greenhouse" | "lever" | "ashby" | "remotive" | "adzuna" | "linkedin" | "manual";
 export type RemoteMode = "remote" | "hybrid" | "onsite" | "unknown";
 export type JobStatus = "open" | "closed" | "unknown";
 export type Seniority = "intern" | "junior" | "mid" | "senior" | "lead" | "principal";

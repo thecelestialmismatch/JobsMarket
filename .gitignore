@@ -40,3 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 /.remember/
+
+# linkedin_scraper login session (live LinkedIn cookies, never commit)
+*session.json
+/sidecar/.venv/

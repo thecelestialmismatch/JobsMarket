@@ -8,6 +8,7 @@ const ITEMS: [string, string][] = [
   ["/app/jobs", "Job finder"],
   ["/app/market", "Market"],
   ["/app/resume", "Resume audit"],
+  ["/app/linkedin", "LinkedIn"],
   ["/app/kits", "Application kits"],
   ["/app/portfolio", "Portfolio"],
   ["/app/tracker", "Tracker"],

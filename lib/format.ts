@@ -6,6 +6,7 @@ const SOURCE: Record<JobSource, string> = {
   ashby: "Ashby",
   remotive: "Remotive",
   adzuna: "Adzuna",
+  linkedin: "LinkedIn",
   manual: "Demo data",
 };
 

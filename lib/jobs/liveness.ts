@@ -3,7 +3,8 @@ import { boardKey } from "./boards";
 
 // ponytail: Adzuna returns one search page per query, so a job missing from it may still be open.
 // Those jobs close only when closesAt passes. Upgrade path is a per id lookup against Adzuna.
-const PARTIAL_SOURCES = new Set<JobPosting["source"]>(["adzuna"]);
+// LinkedIn rows come from hand run searches, so absence from one run never means closed.
+const PARTIAL_SOURCES = new Set<JobPosting["source"]>(["adzuna", "linkedin"]);
 
 export interface Reconciled {
   /** Full rows to write. Fresh jobs keep their first seen retrievedAt. */
