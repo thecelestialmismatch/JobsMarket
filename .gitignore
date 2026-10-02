@@ -44,3 +44,6 @@ next-env.d.ts
 # linkedin_scraper login session (live LinkedIn cookies, never commit)
 *session.json
 /sidecar/.venv/
+
+# local Claude Code session files
+/.claude/
