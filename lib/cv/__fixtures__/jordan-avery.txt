@@ -1,0 +1,39 @@
+Jordan Avery
+Reporting Analyst
+Melbourne VIC | 0400 000 123 | jordan.avery@example.com | linkedin.com/in/jordan-avery-example
+
+PROFESSIONAL SUMMARY
+Reporting analyst with eight years of experience in telecom and logistics. I build dashboards, automate month end reporting and check data quality before it reaches decision makers. Strong in SQL, Power BI and Excel, with working knowledge of Python.
+
+WORK EXPERIENCE
+Senior Reporting Analyst
+Northwind Telecom, Melbourne VIC
+Mar 2022 to Present
+• Built 14 Power BI dashboards that regional managers use to track churn and retention.
+• Rewrote the month end SQL scripts and cut report preparation from three days to four hours.
+• Trained six analysts in data validation and version control.
+• Presented monthly performance packs to the customer operations leadership team.
+
+Data Analyst
+Harbourline Logistics, Melbourne VIC
+Jul 2019 to Feb 2022
+• Automated 22 weekly Excel reports with Python, saving the team about 12 hours each week.
+• Designed a SQL data model for delivery times across 9 depots.
+• Worked with depot managers to define on time delivery measures.
+
+Junior Data Analyst
+Quillfeather Analytics, Geelong VIC
+Feb 2018 to Jun 2019
+• Cleaned and validated survey data for 30 client projects.
+• Produced Tableau charts for client reports.
+
+EDUCATION
+Bachelor of Commerce (Business Analytics)
+Eastlake University, 2014 to 2017
+
+SKILLS
+SQL, Power BI, Excel, Python, Tableau
+Data validation, stakeholder reporting, dashboard design
+
+REFERENCES
+Casey Tran, Analytics Manager, Northwind Telecom, 0400 000 555

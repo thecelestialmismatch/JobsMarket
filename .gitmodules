@@ -1,0 +1,6 @@
+[submodule "vendor/linkedin_scraper"]
+	path = vendor/linkedin_scraper
+	url = https://github.com/joeyism/linkedin_scraper.git
+[submodule "vendor/linkedin-skills"]
+	path = vendor/linkedin-skills
+	url = https://github.com/sergebulaev/linkedin-skills.git

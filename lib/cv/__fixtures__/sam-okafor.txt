@@ -1,0 +1,35 @@
+Sam Okafor
+Cloud Engineer | Sydney NSW 2000
+sam.okafor@example.com | 0400 000 789 | github.com/sam-okafor-example | linkedin.com/in/sam-okafor-example
+
+Profile
+Cloud engineer with seven years of experience running AWS workloads for logistics and analytics teams. I build infrastructure with Terraform and write internal tooling in Python and TypeScript.
+
+Professional Experience
+Cloud Engineer | Harbourline Logistics | Apr 2023 to Present
+- Migrated 40 services from on premises hosts to AWS using Terraform modules.
+- Cut monthly compute spend by 22 percent by rightsizing instances and scheduling test environments.
+- Wrote runbooks and on call guides that three teams now use.
+DevOps Engineer | Quillfeather Analytics | Jan 2021 to Mar 2023
+- Built CI/CD pipelines for 12 Python and TypeScript services.
+- Introduced infrastructure as code with Terraform across two AWS accounts.
+Systems Administrator | Northwind Telecom | Feb 2019 to Dec 2020
+- Maintained 150 Linux servers on a monthly patch cycle.
+- Automated user provisioning with Python scripts.
+
+Projects
+Serverless cost dashboard
+- Built a React and TypeScript dashboard that reads AWS billing exports.
+- Deployed it with Terraform and a scheduled Lambda function.
+Home lab
+- Runs a small Kubernetes cluster used to test Terraform modules.
+
+Certifications
+AWS Certified Solutions Architect Associate, 2022
+HashiCorp Certified Terraform Associate, 2023
+
+Education
+Bachelor of Information Technology | Westmere University | 2015 to 2018
+
+Technical Skills
+AWS, Terraform, Python, TypeScript, React, SQL

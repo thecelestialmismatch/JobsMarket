@@ -1,0 +1,14 @@
+{
+  "name": "Jordan Avery",
+  "email": "jordan.avery@example.com",
+  "phone": "0400 000 123",
+  "location": "Melbourne VIC",
+  "experience": [
+    { "title": "Senior Reporting Analyst", "employer": "Northwind Telecom", "start": "2022-03", "end": "present", "bullets": 4 },
+    { "title": "Data Analyst", "employer": "Harbourline Logistics", "start": "2019-07", "end": "2022-02", "bullets": 3 },
+    { "title": "Junior Data Analyst", "employer": "Quillfeather Analytics", "start": "2018-02", "end": "2019-06", "bullets": 2 }
+  ],
+  "educationCount": 1,
+  "skills": ["SQL", "Power BI", "Excel", "Python", "Tableau"],
+  "yearsExperience": 8.8
+}

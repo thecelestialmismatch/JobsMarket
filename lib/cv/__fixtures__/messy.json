@@ -1,0 +1,14 @@
+{
+  "name": "Alex Moreno",
+  "email": "alex.moreno@example.com",
+  "phone": "+61 400 000 456",
+  "location": "Brisbane QLD 4000",
+  "experience": [
+    { "title": "Business Analyst", "employer": "Harbourline Logistics", "start": "2021-01", "end": "present", "bullets": 2 },
+    { "title": "Operations Coordinator", "employer": "Northwind Telecom", "start": "2017-03", "end": "2021-01", "bullets": 2 },
+    { "title": "Customer Service Officer", "employer": "Quillfeather Analytics", "start": "2015-01", "end": "2017-01", "bullets": 1 }
+  ],
+  "educationCount": 1,
+  "skills": ["Excel", "Salesforce", "SQL"],
+  "yearsExperience": 11.8
+}
