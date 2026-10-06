@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LinkedIn Profile Filler</title>
+<link rel="stylesheet" href="panel.css">
+</head>
+<body>
+<header>
+  <h1>LinkedIn Profile Filler</h1>
+  <p class="lede" id="owner"></p>
+  <p class="lede">For each step press <b>Open</b>, then <b>Fill</b> once the form is showing. Check the text, then press <b>Save</b> on LinkedIn. This extension never saves anything itself.</p>
+  <p class="progress" id="progress"></p>
+</header>
+<main id="steps"></main>
+<footer>
+  <p><button type="button" id="diagnose">Report form layout</button> copies the shape of the open form, never its contents, so a broken step can be fixed.</p>
+  <p>Works only on linkedin.com. Remove it when you are done from chrome://extensions.</p>
+</footer>
+<script type="module" src="panel.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "LinkedIn Profile Filler",
+  "version": "2.0.0",
+  "description": "Fills your approved profile text into LinkedIn's own edit forms. You check every form and press Save yourself.",
+  "minimum_chrome_version": "116",
+  "permissions": ["sidePanel", "scripting", "storage", "clipboardWrite"],
+  "host_permissions": ["https://www.linkedin.com/*"],
+  "background": { "service_worker": "background.js" },
+  "side_panel": { "default_path": "panel.html" },
+  "action": {
+    "default_title": "LinkedIn Profile Filler",
+    "default_icon": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" }
+  },
+  "icons": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" }
+}
