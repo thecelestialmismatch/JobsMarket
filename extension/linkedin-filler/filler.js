@@ -3,13 +3,25 @@
 //
 // fillOnPage only types into fields, selects dates and ticks boxes in the form that is open. It
 // never presses Save, never deletes anything, and refuses to touch a form that belongs to a
-// different job, project or school than the step expects.
+// different job, project or school than the step expects. It is async because ticking a box can
+// make LinkedIn render new fields, such as the end date lists, a moment later.
 //
 // diagnoseForm reports the shape of the open form (headings, labels, field types) and never any
 // field values, so the report is safe to paste into a bug report.
 
-export function fillOnPage(payload) {
+export async function fillOnPage(payload) {
   const norm = (s) => (s || "").replace(/\s+/g, " ").trim().toLowerCase();
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  // Polls until fn returns something, for fields that appear after a click re-renders the form.
+  async function waitFor(fn, ms = 2000) {
+    const end = Date.now() + ms;
+    let found = fn();
+    while (!found && Date.now() < end) {
+      await sleep(100);
+      found = fn();
+    }
+    return found;
+  }
   const visible = (el) => {
     if (!el || !el.getBoundingClientRect) return false;
     const r = el.getBoundingClientRect();
@@ -113,18 +125,27 @@ export function fillOnPage(payload) {
     return null;
   }
 
-  // Wrong form guard. Nothing is changed unless the open form is the right one.
-  if (payload.guard) {
-    const g = find(payload.guard.labels);
-    const v = g ? norm(valueOf(g)) : null;
-    const want = payload.guard.equals || payload.guard.contains;
-    const ok = v !== null && (payload.guard.equals ? v === norm(want) : v.includes(norm(want)));
+  // Wrong form guard. Nothing is changed unless every condition holds for the open form.
+  const guards = Array.isArray(payload.guard) ? payload.guard : payload.guard ? [payload.guard] : [];
+  for (const g of guards) {
+    const el = find(g.labels);
+    const shown = el ? (valueOf(el) || "").trim() : null;
+    const v = shown === null ? null : norm(shown);
+    if ("emptyOr" in g) {
+      if (v === null) return { ok: false, results: [], message: "Open a new, empty form first. Nothing was changed." };
+      if (v !== "" && v !== norm(g.emptyOr)) {
+        return { ok: false, results: [], message: `This form already holds "${shown}". Press + to open a new, empty form. Nothing was changed.` };
+      }
+      continue;
+    }
+    const want = g.equals || g.contains || "";
+    const ok = v !== null && (g.equals ? v === norm(want) : v.includes(norm(want)));
     if (!ok) {
       return {
         ok: false,
         results: [],
-        message: g
-          ? `This form is for "${valueOf(g).trim()}", not "${want}". Nothing was changed.`
+        message: el
+          ? `This form is for "${shown}", not "${want}". Nothing was changed.`
           : `Open the edit form for ${want} first. Nothing was changed.`,
       };
     }
@@ -132,15 +153,20 @@ export function fillOnPage(payload) {
 
   const results = [];
 
+  let clicked = false;
   for (const c of payload.checks || []) {
     const box = find(c.labels, 'input[type="checkbox"]');
     if (!box) {
       results.push({ field: c.labels[0], ok: false, why: "tick box not found" });
       continue;
     }
-    if (box.checked !== c.checked) box.click();
+    if (box.checked !== c.checked) {
+      box.click();
+      clicked = true;
+    }
     results.push({ field: c.labels[0], ok: box.checked === c.checked, why: c.checked ? "ticked" : "unticked" });
   }
+  if (clicked) await sleep(50); // let the page re-render before looking for the fields a tick reveals
 
   for (const f of payload.fields || []) {
     let el = find(f.labels);
@@ -171,17 +197,17 @@ export function fillOnPage(payload) {
 
   const used = new Set();
   for (const s of payload.selects || []) {
-    const where = scopeFor(s.scope);
     const label = (s.scope ? s.scope + ", " : "") + s.option;
-    if (!where) {
-      results.push({ field: label, ok: false, why: "date group not found" });
-      continue;
-    }
-    const sel = [...where.querySelectorAll("select")]
-      .filter((x) => visible(x) && !used.has(x))
-      .find((x) => [...x.options].some((o) => norm(o.textContent) === norm(s.option)));
+    const pick = () => {
+      const where = scopeFor(s.scope);
+      if (!where) return null;
+      return [...where.querySelectorAll("select")]
+        .filter((x) => visible(x) && !x.disabled && !used.has(x))
+        .find((x) => [...x.options].some((o) => norm(o.textContent) === norm(s.option))) || null;
+    };
+    const sel = await waitFor(pick);
     if (!sel) {
-      results.push({ field: label, ok: false, why: "date list not found" });
+      results.push({ field: label, ok: false, why: scopeFor(s.scope) ? "date list not found" : "date group not found" });
       continue;
     }
     used.add(sel);

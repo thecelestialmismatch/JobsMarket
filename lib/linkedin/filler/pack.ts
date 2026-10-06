@@ -36,11 +36,11 @@ export function renderDataJs(plan: FillPlan): string {
 export async function packExtension(files: ReadonlyMap<string, Uint8Array | string>, plan: FillPlan): Promise<Uint8Array> {
   const missing = EXTENSION_FILES.filter((name) => !files.has(name));
   if (missing.length) throw new Error(`Extension files missing: ${missing.join(", ")}`);
+  // Every entry carries the plan date, so the same plan always packs to the same bytes.
   const date = new Date(plan.createdAt);
   const zip = new JSZip();
-  const dir = zip.folder(FOLDER);
-  if (!dir) throw new Error("Could not create the extension folder in the zip.");
-  for (const name of EXTENSION_FILES) dir.file(name, files.get(name) as Uint8Array | string, { date });
-  dir.file("data.js", renderDataJs(plan), { date });
+  zip.file(FOLDER, null, { dir: true, date });
+  for (const name of EXTENSION_FILES) zip.file(`${FOLDER}/${name}`, files.get(name) as Uint8Array | string, { date });
+  zip.file(`${FOLDER}/data.js`, renderDataJs(plan), { date });
   return zip.generateAsync({ type: "uint8array", compression: "DEFLATE", platform: "UNIX" });
 }

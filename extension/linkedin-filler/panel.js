@@ -1,9 +1,11 @@
 import { PLAN } from "./data.js";
 import { diagnoseForm, fillOnPage } from "./filler.js";
 
-window.__fillOnPage = fillOnPage; // used by the end to end tests
 const LINKEDIN = "https://www.linkedin.com/";
-const KEY = "plan:" + PLAN.profileUrl; // progress is kept per plan, so a new plan starts clean
+const KEY = "plan:" + (PLAN && PLAN.profileUrl); // progress is kept per plan, so a new plan starts clean
+// The end to end tests open this page in a normal tab and pass ?tab= to point it at the LinkedIn tab.
+// In the side panel there is no query string, so the active tab of the window is used.
+const FORCED_TAB = Number(new URLSearchParams(location.search).get("tab")) || 0;
 
 const store = {
   async get() {
@@ -17,6 +19,7 @@ const store = {
 };
 
 async function activeTab() {
+  if (FORCED_TAB) return chrome.tabs.get(FORCED_TAB);
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   return tab;
 }
@@ -62,25 +65,45 @@ async function inLinkedIn(func, args, statusEl) {
 async function runFill(payload, statusEl) {
   const result = await inLinkedIn(fillOnPage, [payload], statusEl);
   if (!result) return null;
-  if (result.message) { show(statusEl, false, result.message); return result; }
+  if (result.message) {
+    show(statusEl, false, result.message);
+    return result;
+  }
   const lines = result.results.map((r) => `${r.ok ? "Done" : "Problem"}, ${r.field}, ${r.why}`);
   show(statusEl, result.ok,
     (result.ok ? "Filled. Check it, then press Save on LinkedIn.\n" : "Not everything filled. Fix it by hand, or press Copy and paste.\n") + lines.join("\n"));
   return result;
 }
 
+// Clipboard access can be refused (a focus change, a locked down browser). Then the text is shown,
+// selected, so Cmd+C or Ctrl+C still works.
 async function copy(text, statusEl, what) {
-  await navigator.clipboard.writeText(text);
-  show(statusEl, true, `${what} copied. Paste it with Cmd+V or Ctrl+V.`);
+  try {
+    await navigator.clipboard.writeText(text);
+    show(statusEl, true, `${what} copied. Paste it with Cmd+V or Ctrl+V.`);
+  } catch {
+    show(statusEl, false, `Could not copy automatically. The ${what.toLowerCase()} is selected below, press Cmd+C or Ctrl+C.`);
+    const box = el("textarea", { class: "fallback", rows: "6", "aria-label": what });
+    box.value = text;
+    statusEl.append(box);
+    box.select();
+  }
 }
 
 async function render() {
-  const state = await store.get();
   const root = document.getElementById("steps");
   root.textContent = "";
+  if (!PLAN || PLAN.version !== 2 || !Array.isArray(PLAN.steps)) {
+    root.append(el("p", { class: "status show bad" }, "This copy of the extension has no plan in it. Download it again from JobsMarket."));
+    return;
+  }
+  const state = await store.get();
   let group = null;
   for (const step of PLAN.steps) {
-    if (step.group !== group) { group = step.group; root.append(el("h2", {}, group)); }
+    if (step.group !== group) {
+      group = step.group;
+      root.append(el("h2", {}, group));
+    }
     const statusEl = el("div", { class: "status", role: "status" });
     const done = !!state.done[step.id];
     const tick = el("input", { type: "checkbox", "aria-label": "Mark " + step.title + " done" });
@@ -94,21 +117,41 @@ async function render() {
     const buttons = el("div", { class: "row" });
     buttons.append(el("button", { type: "button", onclick: () => openStep(step, statusEl) }, "Open"));
     if (step.fields || step.selects || step.checks) {
-      buttons.append(el("button", { type: "button", class: "primary", onclick: () => runFill({ fields: step.fields, guard: step.guard, selects: step.selects, checks: step.checks }, statusEl) }, "Fill"));
+      buttons.append(el("button", {
+        type: "button",
+        class: "primary",
+        onclick: () => runFill({ fields: step.fields, guard: step.guard, selects: step.selects, checks: step.checks }, statusEl),
+      }, "Fill"));
     }
     if (step.fields && step.fields.length) {
       buttons.append(el("button", { type: "button", onclick: () => copy(step.fields[step.fields.length - 1].text, statusEl, "Text") }, "Copy"));
     }
     if (step.skillList) {
-      const label = (i) => `Fill next skill (${Math.min(i + 1, step.skillList.length)} of ${step.skillList.length})`;
-      const btn = el("button", { type: "button", class: "primary" }, label(state.skillIndex));
-      btn.addEventListener("click", async () => {
+      const total = step.skillList.length;
+      const label = (i) => (i >= total ? "All skills done" : `Fill next skill (${i + 1} of ${total}), ${step.skillList[i]}`);
+      const next = el("button", { type: "button", class: "primary" }, label(state.skillIndex));
+      const advance = async (i) => {
+        await store.set({ skillIndex: i });
+        next.textContent = label(i);
+      };
+      next.addEventListener("click", async () => {
         const s = await store.get();
-        if (s.skillIndex >= step.skillList.length) { show(statusEl, true, "All skills done."); return; }
+        if (s.skillIndex >= total) {
+          show(statusEl, true, "All skills done.");
+          return;
+        }
         const r = await runFill({ skill: step.skillList[s.skillIndex] }, statusEl);
-        if (r && r.ok) { await store.set({ skillIndex: s.skillIndex + 1 }); btn.textContent = label(s.skillIndex + 1); }
+        if (r && r.ok) await advance(s.skillIndex + 1);
       });
-      buttons.append(btn);
+      const skip = el("button", { type: "button" }, "Skip this one");
+      skip.addEventListener("click", async () => {
+        const s = await store.get();
+        if (s.skillIndex < total) {
+          show(statusEl, true, `Skipped ${step.skillList[s.skillIndex]}.`);
+          await advance(s.skillIndex + 1);
+        }
+      });
+      buttons.append(next, skip);
       buttons.append(el("button", { type: "button", onclick: () => copy(step.skillList.join(", "), statusEl, "Skill list") }, "Copy list"));
     }
     for (const c of step.copy || []) {
@@ -130,12 +173,9 @@ async function render() {
 }
 
 document.getElementById("diagnose").addEventListener("click", async () => {
-  const statusEl = document.getElementById("progress");
-  const report = await inLinkedIn(diagnoseForm, [], { set className(v) {}, set textContent(v) { statusEl.textContent = v; } });
-  if (report) {
-    await navigator.clipboard.writeText(JSON.stringify(report, null, 2));
-    statusEl.textContent = "Form layout copied. It holds labels and field types only, none of your text.";
-  }
+  const statusEl = document.getElementById("diagnose-status");
+  const report = await inLinkedIn(diagnoseForm, [], statusEl);
+  if (report) await copy(JSON.stringify(report, null, 2), statusEl, "Form layout");
 });
 
 render();

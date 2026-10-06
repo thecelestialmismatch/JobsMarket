@@ -1,0 +1,46 @@
+{
+  "owner": "Jordan Avery",
+  "profileUrl": "linkedin.com/in/jordan-avery-example",
+  "headline": "Reporting Analyst | SQL, Power BI and Excel | Telecom and logistics reporting | Melbourne",
+  "about": "I build the dashboards and month end reports that regional managers use to track churn and retention, and I check the data before anyone makes a decision with it.\n\nAt Northwind Telecom I built 14 Power BI dashboards and rewrote the month end SQL scripts, cutting report preparation from three days to four hours. At Harbourline Logistics I automated 22 weekly Excel reports with Python.\n\nI'm open to reporting and data analyst roles in Melbourne.",
+  "topSkills": ["SQL", "Microsoft Power BI", "Microsoft Excel", "Python (Programming Language)", "Data Validation"],
+  "positions": [
+    {
+      "title": "Senior Reporting Analyst",
+      "company": "Northwind Telecom",
+      "dates": "Mar 2022 to Present",
+      "description": "• Built 14 Power BI dashboards that regional managers use to track churn and retention.\n• Rewrote the month end SQL scripts and cut report preparation from three days to four hours.\n• Trained six analysts in data validation and version control."
+    },
+    {
+      "title": "Data Analyst",
+      "company": "Harbourline Logistics",
+      "dates": "Jul 2019 to Feb 2022",
+      "description": "• Automated 22 weekly Excel reports with Python, saving the team about 12 hours each week.\n• Designed a SQL data model for delivery times across 9 depots."
+    }
+  ],
+  "projects": [
+    {
+      "name": "Churn Early Warning",
+      "description": "A Power BI report that flags accounts likely to churn, built from billing and support data.",
+      "end": { "month": "June", "year": 2025 }
+    }
+  ],
+  "education": [
+    {
+      "school": "Eastlake University",
+      "description": "Capstone on retail demand forecasting in Python.",
+      "append": true
+    }
+  ],
+  "certifications": [
+    { "name": "Power BI Data Analyst Associate", "issuer": "Microsoft", "month": "March", "year": 2024 }
+  ],
+  "skills": ["SQL", "Microsoft Power BI", "Microsoft Excel", "Python (Programming Language)", "Tableau", "Data Validation", "Stakeholder Reporting", "Dashboard Design"],
+  "openToWork": {
+    "titles": ["Reporting Analyst", "Data Analyst", "Business Intelligence Analyst"],
+    "locations": ["Melbourne, Victoria, Australia"],
+    "workplace": ["Hybrid", "On-site"],
+    "types": ["Full-time"],
+    "visibility": "recruiters"
+  }
+}
