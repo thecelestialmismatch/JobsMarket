@@ -2,11 +2,5 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "installCommand": "npm ci",
-  "buildCommand": "echo \"PWD=$PWD\"; ls -la; ls app | head -5; git ls-files | head -3; next build",
-  "crons": [
-    {
-      "path": "/api/cron/ingest",
-      "schedule": "0 20 * * *"
-    }
-  ]
+  "crons": [{ "path": "/api/cron/ingest", "schedule": "0 20 * * *" }]
 }
