@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "installCommand": "cd ../.. && npm ci",
-  "buildCommand": "cd ../.. && npx next build",
+  "buildCommand": "cd ../.. && npx next build && if [ -f .vercel/adapter-toolbar-script.js ]; then mkdir -p sidecar/linkedin/.vercel && cp .vercel/adapter-toolbar-script.js sidecar/linkedin/.vercel/; fi",
   "outputDirectory": "../../.next",
   "crons": [{ "path": "/api/cron/ingest", "schedule": "0 20 * * *" }]
 }
