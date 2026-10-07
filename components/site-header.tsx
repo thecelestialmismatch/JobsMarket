@@ -35,7 +35,8 @@ export function SiteFooter() {
     <footer className="mt-auto border-t border-rule">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-ink-2 sm:flex-row sm:items-center sm:justify-between">
         <p>JobsMarket drafts. You decide and you apply. Nothing is ever sent to an employer on your behalf.</p>
-        <nav className="flex gap-4" aria-label="Legal">
+        <nav className="flex flex-wrap gap-4" aria-label="Footer">
+          <Link href="/compare/aiapply-alternative" className="hover:text-ink">JobsMarket vs AIApply</Link>
           <Link href="/privacy" className="hover:text-ink">Privacy</Link>
           <Link href="/terms" className="hover:text-ink">Terms</Link>
         </nav>
